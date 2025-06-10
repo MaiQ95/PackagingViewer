@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PackagingViewer - Demo</title>
+  
+  <link rel="stylesheet" href="css/styles.css?t=1">
+</head>
+<body>
+  <div id="packages">Loading data...</div>
+
+  <script>
+    // Load external JSON file (prevents caching by appending timestamp)
+    fetch("data.json?t=" + new Date().getTime())
+      .then(response => {
+        if (!response.ok) throw new Error("Błąd wczytywania JSON");
+        return response.json();
+      })
+      .then(data => {
+        const output = document.getElementById("packages");
+        output.innerHTML = ""; // Clear loading text
+
+        // Iterate over each customer group
+        data.packages.forEach((pkgSet) => {
+          Object.entries(pkgSet).forEach(([customer, items]) => {
+            const section = document.createElement("div");
+            section.className = "page-break";
+
+            // Customer title
+            const header = document.createElement("h2");
+            header.textContent = `Client: ${customer}`;
+            section.appendChild(header);
+
+            // For each product, generate separate table
+            items.forEach((item) => {
+              // Calculate number of packages
+              const totalPackages = item.full_packages + (item.last_package > 0 ? 1 : 0);
+              const sheetList = [];
+
+              for (let i = 0; i < item.full_packages; i++) sheetList.push(item.max_sheets);
+              if (item.last_package > 0) sheetList.push(item.last_package);
+
+              // Product name header
+              const subTitle = document.createElement("h3");
+              subTitle.textContent = `Product: ${item.item_name}`;
+              section.appendChild(subTitle);
+
+              // Table for the product's packaging data
+              const table = document.createElement("table");
+              table.innerHTML = `
+                <thead>
+                  <tr>
+                    <th>Package No.</th>
+                    <th>Items in package</th>
+                    <th>Weight (to fill)</th>
+                    <th>Package ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sheetList.map((count, i) => `
+                    <tr>
+                      <td>${i + 1}</td>
+                      <td>${count}</td>
+                      <td></td>
+                      <td>${item.item_name.replace(/\s/g, '')}-P${i + 1}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              `;
+              section.appendChild(table);
+            });
+
+            output.appendChild(section);
+          });
+        });
+      })
+      .catch(err => {
+        document.getElementById("packages").innerText = "Error loading data: " + err;
+      });
+  </script>
+</body>
+</html>

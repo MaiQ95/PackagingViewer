@@ -1,0 +1,14 @@
+body { font-family: Arial, sans-serif; }
+    .page-break { page-break-after: always; }
+    h2 { margin-top: 40px; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid #666;
+      padding: 8px;
+      text-align: center;
+    }
+    th { background-color: #eee; }
